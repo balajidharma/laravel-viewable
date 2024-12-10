@@ -34,7 +34,7 @@ class ViewableServiceProvider extends ServiceProvider
                 __DIR__.'/../config/viewable.php' => config_path('viewable.php'),
             ], ['config', 'viewable-config', 'admin-core', 'admin-core-config']);
             $this->publishes([
-                __DIR__.'/../database/migrations/create_viewable_tables.php.stub' => $this->getMigrationFileName('create_comment_tables.php'),
+                __DIR__.'/../database/migrations/create_viewable_tables.php.stub' => $this->getMigrationFileName('create_viewable_tables.php'),
             ], ['migrations', 'viewable-migrations', 'laravel-viewable-migrations', 'admin-core', 'admin-core-migrations']);
         }
     }

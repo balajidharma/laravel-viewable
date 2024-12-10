@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Viewable extends Model
 {
+    public $timestamps = false;
 
     protected $fillable = [
         'viewer_id',
@@ -15,6 +16,7 @@ class Viewable extends Model
         'viewable_type',
         'session_id',
         'ip_address',
+        'viewed_at',
     ];
 
 
@@ -26,6 +28,18 @@ class Viewable extends Model
     protected $dispatchesEvents = [
         'created' => ViewCreated::class,
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable($this->getTable());
+    }
+
+    public function getTable()
+    {
+        return config('viewable.table_names.viewable', parent::getTable());
+    }
 
     public function viewable()
     {
