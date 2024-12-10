@@ -9,6 +9,7 @@
 ## Table of Contents
 
 - [Installation](#installation)
+- [Configuration](#configuration-options)
 - [Demo](#demo)
 
 ## Installation
@@ -55,6 +56,82 @@ public function show(Thread $thread)
     $thread->record();
     
 ```
+
+# Laravel Viewable Configuration
+
+This document describes all configuration options available in the `viewable.php` config file.
+
+## Configuration Options
+
+### Models
+
+```php
+'models' => [
+    'viewable' => BalajiDharma\LaravelViewable\Models\Viewable::class,
+],
+```
+
+Defines the model class used for tracking views. You can override this with your own model class if needed.
+
+```php
+'table_names' => [
+    'viewable' => 'views',
+],
+```
+Specifies the database table name used for storing views. Default is 'views'.
+
+### Bot Detection
+
+```php
+'ignore_bots' => true,
+```
+
+- `true`: Ignores views from bots and crawlers
+- `false`: Records views from all visitors including bots
+- Default: `true`
+
+### Do Not Track (DNT) Header
+
+```php
+'honor_dnt' => false,
+```
+- `true`: Respects the Do Not Track (DNT) header from browsers
+- `false`: Records views regardless of DNT header
+- Default: `false`
+
+### Unique View Settings
+
+```php
+'unique_ip' => true,
+'unique_session' => true,
+'unique_viewer' => true,
+```
+Controls how unique views are tracked:
+
+- `unique_ip`: Records only one view per IP address
+- `unique_session`: Records only one view per session
+- `unique_viewer`: Records only one view per authenticated user
+- Default: All set to `true`
+
+### Model View Counter
+
+```php
+'increment_model_view_count' => false,
+'increment_model_column_name' => 'view_count',
+```
+- `increment_model_view_count`: Enable/disable automatic view count increment on the model
+- `increment_model_column_name`: Specifies the column name for storing view count
+- Default: Counter disabled, column name set to 'view_count'
+
+### IP Address Filtering
+```php
+'ignored_ip_addresses' => [
+    //'127.0.0.1',
+],
+```
+- Array of IP addresses to ignore when recording views
+- Views from these IPs will not be recorded
+- Default: Empty array (no IPs ignored)
 
 ## Demo
 The "[Basic Laravel Admin Penel](https://github.com/balajidharma/basic-laravel-admin-panel)" starter kit come with Laravel Viewable
