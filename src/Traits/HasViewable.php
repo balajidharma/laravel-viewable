@@ -50,21 +50,44 @@ trait HasViewable
     protected function shouldRecord(): bool
     {
         $visitor = $this->getVisitor();
+        $config = Config::get('viewable');
 
         // If ignore bots is true and the current visitor is a bot, return false
-        if (Config::get('viewable.ignore_bots') && $visitor->isCrawler()) {
+        if ($config['ignore_bots'] && $visitor->isCrawler()) {
             return false;
         }
 
         // If we honor the DNT header and the current request contains the
         // DNT header, return false
-        if (Config::get('viewable.honor_dnt', false) && $visitor->hasDoNotTrackHeader()) {
+        if ($config['honor_dnt'] ?? false && $visitor->hasDoNotTrackHeader()) {
             return false;
         }
 
         // Check if IP is in ignored list
-        if (collect(Config::get('viewable.ignored_ip_addresses'))->contains($visitor->ip())) {
+        if (collect($config['ignored_ip_addresses'])->contains($visitor->ip())) {
             return false;
+        }
+
+        $query = $this->views();
+        $checkExists = false;
+
+        if ($visitor->isAuthenticated() && $this->getIsUniqueViewer()) {
+            $query->orWhere(function ($query) use ($visitor) {
+                $query->where('viewer_id', $visitor->getId())
+                    ->where('viewer_type', $visitor->getType());
+            });
+            $checkExists = true;
+        }
+        if ($this->getIsUniqueSession()) {
+            $query->orWhere('session_id', $visitor->getSessionId());
+            $checkExists = true;
+        }
+        if ($this->getIsUniqueIp()) {
+            $query->orWhere('ip_address', $visitor->ip());
+            $checkExists = true;
+        }
+        if ($checkExists) {
+            return !$query->exists();
         }
 
         return true;
@@ -73,42 +96,16 @@ trait HasViewable
     public function createView()
     {
         $visitor = $this->getVisitor();
-        $attributes = [];
 
-        if ($visitor->isAuthenticated() && $this->getIsUniqueViewer()) {
-            $attributes['viewer_id'] = $visitor->getId();
-            $attributes['viewer_type'] = $visitor->getType();
-        }
-        if ($this->getIsUniqueSession()) {
-            $attributes['session_id'] = $visitor->getSessionId();
-        }
-        if ($this->getIsUniqueIp()) {
-            $attributes['ip_address'] = $visitor->ip();
-        }
-
-        if (empty($attributes)) {
-            $view = $this->views()->Create([
-                'viewer_id' => $visitor->getId(),
-                'viewer_type' => $visitor->getType(),
-                'session_id' => $visitor->getSessionId(),
-                'ip_address' => $visitor->ip(),
-                'viewed_at' => now(),
-            ]);
-            $this->incrementViewCount();
-            return $view;
-        } else {
-            $view = $this->views()->firstOrCreate($attributes, [
-                'viewer_id' => $visitor->getId(),
-                'viewer_type' => $visitor->getType(),
-                'session_id' => $visitor->getSessionId(),
-                'ip_address' => $visitor->ip(),
-                'viewed_at' => now(),
-            ]);
-            if ($view->wasRecentlyCreated) {
-                $this->incrementViewCount();
-            }
-            return $view;
-        }
+        $view = $this->views()->Create([
+            'viewer_id' => $visitor->getId(),
+            'viewer_type' => $visitor->getType(),
+            'session_id' => $visitor->getSessionId(),
+            'ip_address' => $visitor->ip(),
+            'viewed_at' => now(),
+        ]);
+        $this->incrementViewCount();
+        return $view;
     }
 
     public function getIsUniqueIp(): bool
