@@ -6,6 +6,16 @@
 <a href="https://packagist.org/packages/balajidharma/laravel-viewable"><img src="https://poser.pugx.org/balajidharma/laravel-viewable/license" alt="License"></a>
 </p>
 
+## Credits
+This package builds upon the work done in [cyrildewit/eloquent-viewable](https://github.com/cyrildewit/eloquent-viewable) and has been modified to suit specific needs. We are grateful to the original author and contributors for their work.
+
+## Features
+- Track page views for Laravel Eloquent models
+- Configure unique views by IP, session, and authenticated users
+- Bot detection and filtering
+- Support for DNT (Do Not Track) header
+- Configurable view counting and storage
+
 ## Table of Contents
 
 - [Installation](#installation)
