@@ -143,5 +143,42 @@ Controls how unique views are tracked:
 - Views from these IPs will not be recorded
 - Default: Empty array (no IPs ignored)
 
+## Control configuration on model
+
+You able to control all the configurtion on model, by adding below properties 
+
+```php
+<?php
+namespace BalajiDharma\LaravelForum\Models;
+
+use BalajiDharma\LaravelViewable\Traits\HasViewable;
+use Illuminate\Database\Eloquent\Model;
+
+class Thread extends Model
+{
+    use HasViewable;
+
+    protected $ignore_bots = true;
+
+    protected $honor_dnt = true;
+
+    protected $unique_session = false;
+
+    protected $unique_ip = false;
+
+    protected $unique_viewer = false;
+
+    protected $increment_model_view_count = true;
+
+    protected $increment_model_column_name = 'view_count';
+
+    protected $ignored_ip_addresses = [
+        '127.0.0.1',
+        '0.0.0.0'
+    ]
+
+```
+
+
 ## Demo
 The "[Basic Laravel Admin Penel](https://github.com/balajidharma/basic-laravel-admin-panel)" starter kit come with Laravel Viewable

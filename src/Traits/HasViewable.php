@@ -50,40 +50,50 @@ trait HasViewable
     protected function shouldRecord(): bool
     {
         $visitor = $this->getVisitor();
-        $config = Config::get('viewable');
 
         // If ignore bots is true and the current visitor is a bot, return false
-        if ($config['ignore_bots'] && $visitor->isCrawler()) {
+        if ($this->getConfigValue('ignore_bots') && $visitor->isCrawler()) {
             return false;
         }
 
         // If we honor the DNT header and the current request contains the
         // DNT header, return false
-        if ($config['honor_dnt'] ?? false && $visitor->hasDoNotTrackHeader()) {
+        if ($this->getConfigValue('honor_dnt') && $visitor->hasDoNotTrackHeader()) {
             return false;
         }
 
         // Check if IP is in ignored list
-        if (collect($config['ignored_ip_addresses'])->contains($visitor->ip())) {
+        if (collect($this->getConfigValue('ignored_ip_addresses'))->contains($visitor->ip())) {
             return false;
         }
 
-        $query = $this->views();
+        $query = config('viewable.models.viewable')::query();
+
         $checkExists = false;
 
-        if ($visitor->isAuthenticated() && $this->getIsUniqueViewer()) {
+        if ($visitor->isAuthenticated() && $this->getConfigValue('unique_viewer')) {
             $query->orWhere(function ($query) use ($visitor) {
-                $query->where('viewer_id', $visitor->getId())
+                $query->where('viewable_id', $this->getKey())
+                    ->where('viewable_type', $this->getMorphClass())
+                    ->where('viewer_id', $visitor->getId())
                     ->where('viewer_type', $visitor->getType());
             });
             $checkExists = true;
         }
-        if ($this->getIsUniqueSession()) {
-            $query->orWhere('session_id', $visitor->getSessionId());
+        if ($this->getConfigValue('unique_session')) {
+            $query->orWhere(function ($query) use ($visitor) {
+                $query->where('viewable_id', $this->getKey())
+                    ->where('viewable_type', $this->getMorphClass())
+                    ->Where('session_id', $visitor->getSessionId());
+            });
             $checkExists = true;
         }
-        if ($this->getIsUniqueIp()) {
-            $query->orWhere('ip_address', $visitor->ip());
+        if ($this->getConfigValue('unique_ip')) {
+            $query->orWhere(function ($query) use ($visitor) {
+                $query->where('viewable_id', $this->getKey())
+                    ->where('viewable_type', $this->getMorphClass())
+                    ->orWhere('ip_address', $visitor->ip());
+            });
             $checkExists = true;
         }
         if ($checkExists) {
@@ -108,37 +118,17 @@ trait HasViewable
         return $view;
     }
 
-    public function getIsUniqueIp(): bool
+    private function getConfigValue(string $property): mixed
     {
-        return $this->unique_ip ?? Config::get('viewable.unique_ip', true);
+        return property_exists($this, $property) ? $this->{$property} : Config::get('viewable.'.$property);
     }
 
-    public function getIsUniqueSession(): bool
+    public function incrementViewCount($value = 1)
     {
-        return $this->unique_session ?? Config::get('viewable.unique_session', true);
-    }
-
-    public function getIsUniqueViewer(): bool
-    {
-        return $this->unique_viewer ?? Config::get('viewable.unique_viewer', true);
-    }
-
-    public function getIsViewCountIncremented(): bool
-    {
-        return $this->increment_view_count ?? Config::get('viewable.increment_model_view_count', false);
-    }
-
-    public function getIncrementColumnName(): string
-    {
-        return $this->increment_column_name ?? Config::get('viewable.increment_model_column_name', 'view_count');
-    }
-
-    public function incrementViewCount()
-    {
-        if (!$this->getIsViewCountIncremented()) {
+        if (!$this->getConfigValue('increment_model_view_count')) {
             return;
         }
         $this->timestamps = false;
-        $this->increment($this->getIncrementColumnName());
+        $this->increment($this->getConfigValue('increment_model_column_name'), $value);
     }
 }
