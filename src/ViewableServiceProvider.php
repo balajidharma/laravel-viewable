@@ -27,8 +27,6 @@ class ViewableServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'viewable');
-
         if (app()->runningInConsole()) {
             $this->publishes([
                 __DIR__.'/../config/viewable.php' => config_path('viewable.php'),
