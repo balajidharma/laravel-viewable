@@ -18,16 +18,14 @@ class Visitor
 
     protected CrawlerDetect $crawlerDetect;
 
-    public function __construct(Request $request = null)
+    public function __construct(?Request $request = null)
     {
         $this->request = $request ?? request();
-        $this->crawlerDetect = new CrawlerDetect();
+        $this->crawlerDetect = new CrawlerDetect;
     }
 
     /**
      * Get the visitor's IP address
-     *
-     * @return string|null
      */
     public function ip(): ?string
     {
@@ -36,8 +34,6 @@ class Visitor
 
     /**
      * Get the visitor's session ID
-     *
-     * @return string|null
      */
     public function getSessionId(): ?string
     {
@@ -46,8 +42,6 @@ class Visitor
 
     /**
      * Check if the visitor is authenticated
-     *
-     * @return bool
      */
     public function isAuthenticated(): bool
     {
@@ -66,8 +60,6 @@ class Visitor
 
     /**
      * Get the authenticated user's class
-     *
-     * @return string|null
      */
     public function getType(): ?string
     {
@@ -79,7 +71,7 @@ class Visitor
      */
     public function hasDoNotTrackHeader(): bool
     {
-        return 1 === (int) $this->request->header(self::DNT);
+        return (int) $this->request->header(self::DNT) === 1;
     }
 
     public function isCrawler(): bool

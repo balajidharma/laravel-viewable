@@ -1,6 +1,6 @@
 {
     "name": "balajidharma/laravel-viewable",
-    "description": "Laravel form builder",
+    "description": "Track Page views for your Laravel projects",
     "license": "MIT",
     "keywords": ["viewable","laravel","laravel-viewable","laravel-views","laravel-framework"],
     "authors": [

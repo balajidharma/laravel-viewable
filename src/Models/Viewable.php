@@ -19,7 +19,6 @@ class Viewable extends Model
         'viewed_at',
     ];
 
-
     /**
      * The event map for the model.
      *

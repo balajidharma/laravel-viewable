@@ -11,14 +11,15 @@ trait HasViewable
 {
     protected ?Visitor $visitor = null;
 
-     /**
+    /**
      * Get the visitor instance
      */
     protected function getVisitor(): Visitor
     {
-        if (!$this->visitor) {
-            $this->visitor = new Visitor();
+        if (! $this->visitor) {
+            $this->visitor = new Visitor;
         }
+
         return $this->visitor;
     }
 
@@ -44,8 +45,6 @@ trait HasViewable
 
     /**
      * Determine if we should record the view.
-     *
-     * @return bool
      */
     protected function shouldRecord(): bool
     {
@@ -97,7 +96,7 @@ trait HasViewable
             $checkExists = true;
         }
         if ($checkExists) {
-            return !$query->exists();
+            return ! $query->exists();
         }
 
         return true;
@@ -115,6 +114,7 @@ trait HasViewable
             'viewed_at' => now(),
         ]);
         $this->incrementViewCount();
+
         return $view;
     }
 
@@ -125,7 +125,7 @@ trait HasViewable
 
     public function incrementViewCount($value = 1)
     {
-        if (!$this->getConfigValue('increment_model_view_count')) {
+        if (! $this->getConfigValue('increment_model_view_count')) {
             return;
         }
         $this->timestamps = false;
