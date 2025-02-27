@@ -91,7 +91,7 @@ trait HasViewable
             $query->orWhere(function ($query) use ($visitor) {
                 $query->where('viewable_id', $this->getKey())
                     ->where('viewable_type', $this->getMorphClass())
-                    ->orWhere('ip_address', $visitor->ip());
+                    ->Where('ip_address', $visitor->ip());
             });
             $checkExists = true;
         }
